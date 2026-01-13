@@ -1,9 +1,15 @@
-import { PrismaClient, Role } from "@/generated/prisma";
+import "dotenv/config" 
+import { PrismaClient, Role } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient()
 
 async function main() {
+  console.log("🌱 Seeding database...")
+
+  await prisma.user.deleteMany()
+  await prisma.team.deleteMany()
+
   const engineering = await prisma.team.create({
     data: { name: "Engineering", code: "ENG" },
   })
@@ -12,11 +18,13 @@ async function main() {
     data: { name: "Marketing", code: "MKT" },
   })
 
+  const hashedPassword = await bcrypt.hash("password123", 12)
+
   await prisma.user.create({
     data: {
       name: "Admin",
       email: "admin@company.com",
-      password: await bcrypt.hash("password123", 12),
+      password: hashedPassword,
       role: Role.ADMIN,
     },
   })
@@ -25,7 +33,7 @@ async function main() {
     data: {
       name: "Bob Manager",
       email: "bob@company.com",
-      password: await bcrypt.hash("password123", 12),
+      password: hashedPassword,
       role: Role.MANAGER,
       teamId: engineering.id,
     },
@@ -35,15 +43,20 @@ async function main() {
     data: {
       name: "Alice User",
       email: "alice@company.com",
-      password: await bcrypt.hash("password123", 12),
+      password: hashedPassword,
       role: Role.USER,
       teamId: engineering.id,
     },
   })
 
-  console.log("Database seeded")
+  console.log(" Database seeded successfully")
 }
 
 main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect())
+  .catch((err) => {
+    console.error(" Seeding failed:", err)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
