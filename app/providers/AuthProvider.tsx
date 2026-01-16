@@ -2,20 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: "ADMIN" | "USER" | "MANAGER";
-  teamId?: string | null;
-};
-
-type AuthContextType = {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  logout: () => Promise<void>;
-};
+import { AuthContextType, Role, User } from "@/types/index";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -28,6 +15,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+const login = async (formData: FormData) => {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  const res = await api.login(email, password);
+
+  if (res?.user) {
+    setUser(res.user);
+  }
+};
+
+
+  const hasPermission = (requiredRole: Role): boolean => {
+    if (!user) return false;
+
+    const rolePriority: Record<Role, number> = {
+      [Role.GUEST]: 0,
+      [Role.USER]: 1,
+      [Role.MANAGER]: 2,
+      [Role.ADMIN]: 3,
+    };
+
+    return rolePriority[user.role] >= rolePriority[requiredRole];
+  };
+
   const logout = async () => {
     await api.logout();
     setUser(null);
@@ -35,7 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider
+      value={{ user, setUser, login, hasPermission, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

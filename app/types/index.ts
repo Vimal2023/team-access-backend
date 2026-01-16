@@ -25,3 +25,11 @@ export interface User {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface AuthContextType  {
+  user: User | null;
+  login: (FormData : FormData) => void;
+  hasPermission: (requiredRole: Role) => boolean;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  logout: () => Promise<void>;
+};
