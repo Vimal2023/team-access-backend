@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 
+
 export default function Header() {
   const pathname = usePathname();
   const { user, logout } = useAuth();

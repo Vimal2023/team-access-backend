@@ -1,6 +1,13 @@
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
+type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  teamCode?: string;
+};
+
 class ApiClient {
   async request(endpoint: string, options: RequestInit = {}) {
     const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -15,7 +22,7 @@ class ApiClient {
     return res.json();
   }
 
-  register(data: { email: string; password: string; name?: string }) {
+  register(data: RegisterPayload) {
     return this.request("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
