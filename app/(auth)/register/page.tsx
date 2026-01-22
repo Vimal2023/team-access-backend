@@ -124,7 +124,7 @@ export default function RegisterPage() {
               placeholder="enter team code if you have one"
               className="w-full mb-3 p-2 rounded bg-slate-700 text-white"
             />
-            <p className="text-xs text-slate-500 mt-1 ">Leave empty if you don&apos;t have a team code </p>
+            <p className="text-xs text-slate-500 mt-1 ">Leave this bar empty if you don&apos;t have a team code </p>
           </div>
         </div>
         <button
